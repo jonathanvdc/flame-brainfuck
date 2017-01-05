@@ -4,6 +4,8 @@ Building a Brainfuck compiler with Flame
 
 ## Hello world for cool kids
 
+### Introduction and basic set-up
+
 Most programming language tutorials invariably begin by teaching us how to
 create a program that prints "Hello World!" So I figure it's only fitting that
 we, too, start by creating a program that does just that.
@@ -42,10 +44,13 @@ we're just trying to build a simple "hello world" program, we might as well just
 make `BrainfuckHandler` do all the heavy lifting on its own. Hence the long list
 of usings.
 
+### Implementing `IProjectHandler`
+
 Next, we'll have `BrainfuckHandler` implement `IProjectHandler`.
 
 ```cs
 public sealed class BrainfuckHandler : IProjectHandler
+{
 ```
 
 `IProjectHandler` is an interface that defines what it means to implement a
@@ -123,3 +128,36 @@ implementations in `BrainfuckHandler`.
         return Projects;
     }
     ```
+
+  * `IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)`
+    is pretty niche. It enables front-ends to create multi-file projects from
+    single-file projects. For example, a C# compiler might want to use
+    `MakeProject` to create a `*.csproj` file from its inputs and command-line
+    arguments.
+
+    Again, we're not really interested in supplying this kind of functionality.
+
+    ```cs
+    public IProject MakeProject(IProject Project, ProjectPath Path, ICompilerLog Log)
+    {
+        // Turning a file into a project and writing it to disk
+        // is not a useful concept for Brainfuck. For simplicity,
+        // let's just return the input project.
+        return Project;
+    }
+    ```
+
+  * `Task<IAssembly> CompileAsync(IProject Project, CompilationParameters Parameters)`
+    is where the magic happens. It takes a project and some useful information
+    regarding the compilation task, and turns that into an assembly.
+
+    Well, we'll actually be building an _intermediate representation_ (IR)
+    assembly.
+    Generating the actual output is the middle-end/back-end's problem, and
+    happens automagically &ndash; in fact, that is exactly why you might want
+    to use Flame in the first place.
+
+    Implementing `CompileAsync` is still a relatively interesting endeavor,
+    though. So we'll move that to its own section.
+
+### Implementing `CompileAsync`
