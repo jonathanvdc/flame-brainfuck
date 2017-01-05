@@ -40,7 +40,7 @@ namespace Flame.Brainfuck
         public IEnumerable<ParsedProject> Partition(IEnumerable<ParsedProject> Projects)
         {
             // We won't be partitioning the files we parsed,
-            // because that doesn't really make sense for 
+            // because that doesn't really make sense for Brainfuck.
             return Projects;
         }
 
