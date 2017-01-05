@@ -68,7 +68,7 @@ like this on my machine.
 
 ```
 $ ./flame-brainfuck.exe --version
-flame-brainfuck version 1.0.6214 (based on Flame 0.8.9)
+flame-brainfuck version 1.0.6214 (based on Flame 0.9.1)
 Platform: Unix 4.4.0.57
 Console: xterm-256color
 You can check for new releases at https://github.com/jonathanvdc/flame-brainfuck/releases
@@ -79,5 +79,5 @@ flame-brainfuck: nothing to compile: no input files
 The takeaway here is that Flame handles most, if not all, I/O. It'll happily
 parse command-line arguments for you and react to that on its own. You don't
 have to worry about the command-line interface; that's just not part of your
-core responsibilities as a budding compiler developer, so handling typical
+core responsibilities as a compiler enthusiast, so handling typical
 user interaction is best left to a common library.
