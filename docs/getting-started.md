@@ -40,7 +40,7 @@ namespace Flame.Brainfuck
 }
 ```
 
-You're welcome to replace `"flame-brainfuck"` by the name you picked for your project. If you build your project and produce an executable &ndash; which is, in my case, called `flame-brainfuck.exe` &ndash; then we can run the line prefixed by a dollar sign (`$`) below to get the given output.
+You're welcome to replace `"flame-brainfuck"` by the name you picked for your project. If you build your project and produce an executable &ndash; which is, in my case, called `flame-brainfuck.exe` &ndash; then you can run the line prefixed by a dollar sign (`$`) below to get the given output.
 
 ```
 $ ./flame-brainfuck.exe
