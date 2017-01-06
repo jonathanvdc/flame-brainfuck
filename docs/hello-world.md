@@ -1,10 +1,6 @@
+# Hello world for cool kids
 
-Building a Brainfuck compiler with Flame
-========================================
-
-## Hello world for cool kids
-
-### Introduction and basic set-up
+## Introduction and basic set-up
 
 Most programming language tutorials invariably begin by teaching us how to
 create a program that prints "Hello World!" So I figure it's only fitting that
@@ -44,7 +40,7 @@ we're just trying to build a simple "hello world" program, we might as well just
 make `BrainfuckHandler` do all the heavy lifting on its own. Hence the long list
 of usings.
 
-### Implementing `IProjectHandler`
+## Implementing `IProjectHandler`
 
 Next, we'll have `BrainfuckHandler` implement `IProjectHandler`.
 
@@ -160,7 +156,7 @@ implementations in `BrainfuckHandler`.
     Implementing `CompileAsync` is still a relatively interesting endeavor,
     though. So we'll move that to its own section.
 
-### Implementing `CompileAsync`
+## Implementing `CompileAsync`
 
 `CompileAsync` is where things start to get interesting. This is where we'll
 generate an assembly that contains the following "hello world" Program.
@@ -299,7 +295,7 @@ resultAssembly.EntryPoint = mainMethod;
 return resultAssembly;
 ```
 
-### One more thing: `GetMainBodyAsync`
+## One more thing: `GetMainBodyAsync`
 
 And then there is only the small matter of getting `Main` to print
 `"Hello World!"` Our algorithm to do just that will consist of the following
@@ -434,7 +430,7 @@ And that's all there is to it. We now have an `IProjectHandler` that will
 take Brainfuck files as input, only to ignore them completely and then
 generate a "hello world" program instead. Lovely.
 
-### One last statement: registering `BrainfuckHandler`
+## One last statement: registering `BrainfuckHandler`
 
 Having an `IProjectHandler` for Brainfuck doesn't imply that our compiler will
 actually recognize and compile Brainfuck files. In fact, if you were to compile
@@ -486,7 +482,7 @@ $ ./tests/mirror/bin/mirror.exe
 Hello World!
 ```  
 
-### Wrapping up
+## Wrapping up
 
 We have succeeded in building a compiler that takes Brainfuck files as input and
 produces "hello world" programs as output. By this point, our compiler
@@ -496,5 +492,4 @@ If you got stuck at some point, or if you just want to take a look at the
 complete source code, then the you're welcome to browse
 [`flame-brainfuck`'s source code on GitHub.](https://github.com/jonathanvdc/flame-brainfuck/tree/master/src/hello-world)
 
-Our next step will be to replace `GetMainBodyAsync`'s code with logic that
-reads and compiles Brainfuck files.
+Eventually, we will replace `GetMainBodyAsync`'s code with logic that reads and compiles Brainfuck files. But let's play around with our compiler first.

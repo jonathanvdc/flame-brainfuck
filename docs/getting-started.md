@@ -1,8 +1,4 @@
-
-Building a Brainfuck compiler with Flame
-========================================
-
-## Getting started
+# Getting started
 
 For starters, fire up your favorite IDE and create a simple command-line project. Call it whatever you want; I called mine `flame-brainfuck` and set the default namespace to `Flame.Brainfuck`. Your main C# program file might look a bit like this.
 
