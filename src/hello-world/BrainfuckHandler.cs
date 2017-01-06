@@ -115,7 +115,9 @@ namespace Flame.Brainfuck
             // Resolve type `System.Console`.
             var consoleClass = Binder.BindType(
                 new SimpleName("Console")
-                .Qualify(new SimpleName("System").Qualify()));
+                .Qualify(
+                    new SimpleName("System")
+                    .Qualify()));
 
             if (consoleClass == null)
             {
