@@ -78,6 +78,9 @@ namespace Flame.Brainfuck
                 new SimpleName("Main"),
                 programClass);
 
+            // Make method Main "public".
+            mainMethod.AddAttribute(new AccessAttribute(AccessModifier.Public));
+
             // Make method Main "static".
             mainMethod.IsStatic = true;
 
@@ -153,7 +156,7 @@ namespace Flame.Brainfuck
                         writeLineMethod, null, 
                         new IExpression[] 
                         {
-                            new StringExpression("Hello, World!")
+                            new StringExpression("Hello World!")
                         })),
 
                 // `return;`
