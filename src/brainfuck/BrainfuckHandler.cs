@@ -116,6 +116,13 @@ namespace Flame.Brainfuck
             var code = ProjectHandlerHelpers.GetSourceSafe(
                 Project.GetSourceItems().Single(), Parameters);
 
+            if (code == null)
+            {
+                // We couldn't fetch the source code.
+
+                return new ReturnStatement();
+            }
+
             // Resolve type `System.Console`.
             var consoleClass = Binder.BindType(
                 new SimpleName("Console")
