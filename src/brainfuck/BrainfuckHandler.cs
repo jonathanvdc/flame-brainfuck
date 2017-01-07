@@ -118,6 +118,7 @@ namespace Flame.Brainfuck
 
             if (code == null)
             {
+                // Looks like the source code couldn't be retrieved.
                 return new ReturnStatement();
             }
 
