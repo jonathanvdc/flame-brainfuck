@@ -118,8 +118,6 @@ namespace Flame.Brainfuck
 
             if (code == null)
             {
-                // We couldn't fetch the source code.
-
                 return new ReturnStatement();
             }
 
@@ -156,7 +154,7 @@ namespace Flame.Brainfuck
 
                 Parameters.Log.LogError(new LogEntry(
                     "missing dependency",
-                    "could not resolve type 'static void Write(char)'."));
+                    "could not resolve method 'static void Write(char)'."));
 
                 return new ReturnStatement();
             }
@@ -175,7 +173,7 @@ namespace Flame.Brainfuck
 
                 Parameters.Log.LogError(new LogEntry(
                     "missing dependency",
-                    "could not resolve type 'static int Read()'."));
+                    "could not resolve method 'static int Read()'."));
 
                 return new ReturnStatement();
             }

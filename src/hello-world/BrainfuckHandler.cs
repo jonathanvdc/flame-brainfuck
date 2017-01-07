@@ -145,7 +145,7 @@ namespace Flame.Brainfuck
 
                 Parameters.Log.LogError(new LogEntry(
                     "missing dependency",
-                    "could not resolve type 'static void System.Console.WriteLine(string)'."));
+                    "could not resolve method 'static void System.Console.WriteLine(string)'."));
 
                 return new ReturnStatement();
             }
