@@ -121,7 +121,7 @@ Let's take a relatively close look at `Main`'s method body.
 }
 ```
 
-What's interesting about this snippet of code is that it corresponds almost directly to the in-memory IR we generated in `GetMainBodyAsync`. We have a block that contains two statements. The first loads a delegate to `void System.Console.WriteLine(string)` with a `null` receiver object, and invokes it with a single string literal argument. The second statement returns control to the caller.
+What's interesting about this snippet of code is that it corresponds almost directly to the in-memory IR we generated in `GetMainBody`. We have a block that contains two statements. The first loads a delegate to `void System.Console.WriteLine(string)` with a `null` receiver object, and invokes it with a single string literal argument. The second statement returns control to the caller.
 
 > **Note:** loading a delegate and then invoking it is how Flame handles method calls. This representation is for uniformity only; the CLR back-end will optimize the code sequence above to a direct call. So there's no performance hit at all.
 
