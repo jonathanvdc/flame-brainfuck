@@ -44,14 +44,27 @@ namespace Flame.Brainfuck
         }
 
         private static IStatement Increment(
-            IVariable Variable, int Offset)
+            IVariable Variable)
         {
-            // Variable = Variable + (decltype(Variable))Offset;
+            // Variable = Variable + (decltype(Variable))1;
             return Variable.CreateSetStatement(
                 new AddExpression(
                     Variable.CreateGetExpression(),
                     new StaticCastExpression(
-                        new IntegerExpression(Offset),
+                        new IntegerExpression(1),
+                        Variable.Type)
+                    .Simplify()));
+        }
+
+        private static IStatement Decrement(
+            IVariable Variable)
+        {
+            // Variable = Variable - (decltype(Variable))1;
+            return Variable.CreateSetStatement(
+                new SubtractExpression(
+                    Variable.CreateGetExpression(),
+                    new StaticCastExpression(
+                        new IntegerExpression(1),
                         Variable.Type)
                     .Simplify()));
         }
@@ -73,13 +86,29 @@ namespace Flame.Brainfuck
 
         private static IStatement Read(BrainfuckState State)
         {
-            // array[index] = (ElementType)Read();
-            return State.ElementVariable.CreateSetStatement(
-                new StaticCastExpression(
+            // var tmp = Read();
+            // array[index] = tmp > 0 ? (ElementType)tmp : 0;
+            var tmpVar = new LocalVariable("tmp", State.ReadMethod.ReturnType);
+            return new BlockStatement(new IStatement[]
+            {
+                tmpVar.CreateSetStatement(
                     new InvocationExpression(
                         State.ReadMethod, null, 
-                        new IExpression[] { }),
-                    State.ElementVariable.Type));
+                        new IExpression[] { })),
+                State.ElementVariable.CreateSetStatement(
+                    new SelectExpression(
+                        new GreaterThanExpression(
+                            tmpVar.CreateGetExpression(),
+                            new StaticCastExpression(
+                                new IntegerExpression(0),
+                                tmpVar.Type)),
+                        new StaticCastExpression(
+                            tmpVar.CreateGetExpression(),
+                            State.ElementVariable.Type),
+                        new StaticCastExpression(
+                            new IntegerExpression(0),
+                            State.ElementVariable.Type)))
+            });
         }
 
         private static IStatement PopLoop(
@@ -102,7 +131,7 @@ namespace Flame.Brainfuck
             // while (array[index] > 0) { ... }
             return new WhileStatement(
                 new GreaterThanExpression(
-                    State.ElementVariable,
+                    State.ElementVariable.CreateGetExpression(),
                     new StaticCastExpression(
                         new IntegerExpression(0),
                         State.ElementVariable.Type)),
@@ -122,16 +151,16 @@ namespace Flame.Brainfuck
                 switch (c)
                 {
                     case '>':
-                        State.Append(Increment(State.IndexVariable, 1));
+                        State.Append(Increment(State.IndexVariable));
                         break;
                     case '<':
-                        State.Append(Increment(State.IndexVariable, -1));
+                        State.Append(Decrement(State.IndexVariable));
                         break;
                     case '+':
-                        State.Append(Increment(State.ElementVariable, 1));
+                        State.Append(Increment(State.ElementVariable));
                         break;
                     case '-':
-                        State.Append(Increment(State.ElementVariable, -1));
+                        State.Append(Decrement(State.ElementVariable));
                         break;
                     case '.':
                         State.Append(Print(State));

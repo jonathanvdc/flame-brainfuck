@@ -17,6 +17,12 @@ namespace Flame.Brainfuck
             this.ArrayVariable = ArrayVariable;
             this.IndexVariable = IndexVariable;
             this.blocks = new Stack<List<IStatement>>();
+            this.ElementVariable = new ElementVariable(
+                ArrayVariable.CreateGetExpression(), 
+                new IExpression[] 
+                { 
+                    IndexVariable.CreateGetExpression() 
+                });
         }
 
         // A method that prints characters. 
@@ -33,18 +39,7 @@ namespace Flame.Brainfuck
 
         // A variable that represents the currently indexed 
         // element in the data array.
-        public IVariable ElementVariable
-        {
-            get 
-            { 
-                return new ElementVariable(
-                    ArrayVariable.CreateGetExpression(), 
-                    new IExpression[] 
-                    { 
-                        IndexVariable.CreateGetExpression() 
-                    });
-            }
-        }
+        public IVariable ElementVariable { get; private set; }
 
         private Stack<List<IStatement>> blocks;
 
