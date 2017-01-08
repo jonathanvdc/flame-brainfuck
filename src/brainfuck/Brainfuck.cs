@@ -128,9 +128,9 @@ namespace Flame.Brainfuck
                 return EmptyStatement.Instance;
             }
 
-            // while (array[index] > 0) { ... }
+            // while (array[index] != 0) { ... }
             return new WhileStatement(
-                new GreaterThanExpression(
+                new InequalityExpression(
                     State.ElementVariable.CreateGetExpression(),
                     new StaticCastExpression(
                         new IntegerExpression(0),
