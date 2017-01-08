@@ -28,7 +28,7 @@ namespace Flame.Brainfuck
             // index = 0;
             state.Append(
                 indexVar.CreateSetStatement(
-                    new IntegerExpression(0)));
+                    IntegerLiteral(0, indexVar.Type)));
 
             // data = new ElementType[ArraySize];
             state.Append(
@@ -43,6 +43,16 @@ namespace Flame.Brainfuck
             return state;
         }
 
+        private static IExpression IntegerLiteral(
+            int Value, IType Type)
+        {
+            // (Type)Value;
+            return new StaticCastExpression(
+                new IntegerExpression(Value), 
+                Type)
+                .Simplify();
+        }
+
         private static IStatement Increment(
             IVariable Variable)
         {
@@ -50,10 +60,7 @@ namespace Flame.Brainfuck
             return Variable.CreateSetStatement(
                 new AddExpression(
                     Variable.CreateGetExpression(),
-                    new StaticCastExpression(
-                        new IntegerExpression(1),
-                        Variable.Type)
-                    .Simplify()));
+                    IntegerLiteral(1, Variable.Type)));
         }
 
         private static IStatement Decrement(
@@ -63,10 +70,7 @@ namespace Flame.Brainfuck
             return Variable.CreateSetStatement(
                 new SubtractExpression(
                     Variable.CreateGetExpression(),
-                    new StaticCastExpression(
-                        new IntegerExpression(1),
-                        Variable.Type)
-                    .Simplify()));
+                    IntegerLiteral(1, Variable.Type)));
         }
 
         private static IStatement Print(BrainfuckState State)
@@ -99,15 +103,11 @@ namespace Flame.Brainfuck
                     new SelectExpression(
                         new GreaterThanExpression(
                             tmpVar.CreateGetExpression(),
-                            new StaticCastExpression(
-                                new IntegerExpression(0),
-                                tmpVar.Type)),
+                            IntegerLiteral(0, tmpVar.Type)),
                         new StaticCastExpression(
                             tmpVar.CreateGetExpression(),
                             State.ElementVariable.Type),
-                        new StaticCastExpression(
-                            new IntegerExpression(0),
-                            State.ElementVariable.Type)))
+                        IntegerLiteral(0, State.ElementVariable.Type)))
             });
         }
 
@@ -132,9 +132,7 @@ namespace Flame.Brainfuck
             return new WhileStatement(
                 new InequalityExpression(
                     State.ElementVariable.CreateGetExpression(),
-                    new StaticCastExpression(
-                        new IntegerExpression(0),
-                        State.ElementVariable.Type)),
+                    IntegerLiteral(0, State.ElementVariable.Type)),
                 State.PopBlock());
         }
 
