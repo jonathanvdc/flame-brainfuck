@@ -28,7 +28,7 @@ namespace Flame.Brainfuck
             // index = 0;
             state.Append(
                 indexVar.CreateSetStatement(
-                    IntegerLiteral(0, indexVar.Type)));
+                    new IntegerExpression(0)));
 
             // data = new ElementType[ArraySize];
             state.Append(
