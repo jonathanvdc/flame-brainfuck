@@ -7,14 +7,14 @@ Most of the groundwork is done now, and the "hello world" compiler is in ideal s
 It's worth reviewing how Brainfuck code can be translated to, say, C# before we actually implement a similar translation. I ~~stole~~ borrowed the table below from [the Wikipedia article on Brainfuck](https://en.wikipedia.org/wiki/Brainfuck), and then added the rightmost column myself.
 
 | Brainfuck command | C equivalent | C# equivalent |
-| ------------------ | ------------- |
+| ------------------ | ------------- | ----------- |
 | (Program Start) | `char array[infinitely large size] = {0}; char *ptr=array;` | `var array = new byte[infinitely large size]; int index = 0;` |
 | `>` | `++ptr;` | `++index;` |
 | `<` | `--ptr;` | `--index;` |
 | `+` | `++*ptr;` | `++array[index];` |
 | `-` | `--*ptr;` | `--array[index];` |
 | `.` | `putchar(*ptr);` | `Console.Write((char)array[index]);` |
-| `,` | `*ptr=getchar();` | `int r = Console.Read(); array[index] = r > 0 ? (byte)r : 0;`
+| `,` | `*ptr=getchar();` | `int r = Console.Read(); array[index] = r > 0 ? (byte)r : 0;` |
 | `[` | `while (*ptr) {` | `while (array[index] != 0) {` |
 | `]` | `}` | `}` |
 
