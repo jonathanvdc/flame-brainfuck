@@ -13,12 +13,15 @@ namespace Flame.Brainfuck
             IMethod PrintMethod, IMethod ReadMethod,
             IType ElementType, int ArraySize)
         {
+            // Create the 'array' variable, with type 'ElementType[]'.
             var arrayVar = new LocalVariable(
-                "data", ElementType.MakeArrayType(1));
+                "array", ElementType.MakeArrayType(1));
 
+            // Create the 'index' variable, with type 'int'.
             var indexVar = new LocalVariable(
                 "index", PrimitiveTypes.Int32);
 
+            // Create the Brainfuck state.
             var state = new BrainfuckState(
                 PrintMethod, ReadMethod, arrayVar, indexVar);
 
@@ -30,7 +33,7 @@ namespace Flame.Brainfuck
                 indexVar.CreateSetStatement(
                     new IntegerExpression(0)));
 
-            // data = new ElementType[ArraySize];
+            // array = new ElementType[ArraySize];
             state.Append(
                 arrayVar.CreateSetStatement(
                     new NewArrayExpression(
