@@ -126,7 +126,7 @@ namespace Flame.Brainfuck
                     "the given left bracket character (']') " +
                     "doesn't have a matching right bracket ('[') " +
                     "to precede it.",
-                    new SourceLocation(Code, Index)));
+                    new SourceLocation(Code, Index, 1)));
                 
                 return EmptyStatement.Instance;
             }
