@@ -98,10 +98,12 @@ namespace Flame.Brainfuck
             var tmpVar = new LocalVariable("tmp", State.ReadMethod.ReturnType);
             return new BlockStatement(new IStatement[]
             {
+                // tmp = Read();
                 tmpVar.CreateSetStatement(
                     new InvocationExpression(
                         State.ReadMethod, null, 
                         new IExpression[] { })),
+                // array[index] = tmp > 0 ? (ElementType)tmp : 0;
                 State.ElementVariable.CreateSetStatement(
                     new SelectExpression(
                         new GreaterThanExpression(
