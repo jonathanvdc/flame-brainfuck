@@ -560,4 +560,4 @@ $ echo "hi there" | ./tests/mirror/bin/mirror.exe
 hi there
 ```
 
-Congratulations! You are now the (proud) author of a working Brainfuck compiler! Good job!
+Congratulations! You are now the (proud) author of a working Brainfuck compiler! Good job! For the complete source code, see [the `flame-brainfuck` GitHub page](https://github.com/jonathanvdc/flame-brainfuck).
