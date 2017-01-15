@@ -150,7 +150,7 @@ var array = new byte[infinitely large size];
 int index = 0;
 ```
 
-Let's compile these two statements and initialize the `BrainfuckState`. Both activities are highly related, so we might as well combine them in a single method.
+Let's compile these two statements and initialize the `BrainfuckState`. Both activities are highly related, so we might as well combine them in a single method. I've placed the function below &ndash; and all other code in the next few sections &ndash; in a `public static class` called `Brainfuck`.
 
 ```cs
 public static BrainfuckState Initialize(
@@ -190,3 +190,374 @@ public static BrainfuckState Initialize(
     return state;
 }
 ```
+
+As a concession to reality, we won't be creating an infinitely large `byte` array. Instead, the call to `new NewArrayExpression` creates a finite array with `ArraySize` elements of type `ElementType`. For now, let's assume that `ElementType` is `byte`.
+
+## Compiling Brainfuck code: the high-level view
+
+Next up, let's handle the actual Brainfuck code. For this, we'll write a function `IStatement Compile(ISourceDocument, BrainfuckState, ICompilerLog)`.
+
+> We've already encountered `IStatement`, `BrainfuckState` and `ICompilerLog` by now; but `ISourceDocument` is new. An `ISourceDocument` is basically a file of source code whose source code can be retrieved as a string by accessing `ISourceDocument.Source`. Source documents are also useful for diagnostics: appending a `new SourceLocation(sourceDocument, index, length)` to a `new LogEntry` constructor call's argument list will associate the log entry with a particular location in the source code: specifically, the range of code that is `length` characters long and starts at offset `index` in the `sourceDocument`.
+
+> The command-line interface visualizes source locations as a pair of line and column numbers, along with a caret-highlighted string of source code. For example, consider the following snippet of code.
+
+> ```cs
+Log.LogError(new LogEntry(
+    "unexpected character",
+    "the given left bracket character (']') " +
+    "doesn't have a matching right bracket ('[') " +
+    "to precede it.",
+    new SourceLocation(Code, Index, 1)));
+```
+
+> This error message might be rendered like so:
+
+> ```
+mirror.bf:1:3: error: unexpected character: the given left bracket character (']') doesn't have a matching right bracket ('[') to precede it.
+    ,.][,.]
+      ^    
+```
+
+The `Compile` function consists of a simple loop over the source code. The nitty-gritty details of building Flame IR have been shoved into specialized functions, to give us a better overview of the high-level logic.
+
+```cs
+public static IStatement Compile(
+    ISourceDocument Code, BrainfuckState State,
+    ICompilerLog Log)
+{
+    string source = Code.Source;
+    int index = 0;
+
+    while (index < source.Length)
+    {
+        char c = source[index];
+        switch (c)
+        {
+            case '>':
+                State.Append(Increment(State.IndexVariable));
+                break;
+            case '<':
+                State.Append(Decrement(State.IndexVariable));
+                break;
+            case '+':
+                State.Append(Increment(State.ElementVariable));
+                break;
+            case '-':
+                State.Append(Decrement(State.ElementVariable));
+                break;
+            case '.':
+                State.Append(Print(State));
+                break;
+            case ',':
+                State.Append(Read(State));
+                break;
+            case '[':
+                State.PushBlock();
+                break;
+            case ']':
+                State.Append(PopLoop(State, Code, index, Log));
+                break;
+            default:
+                // Ignore all other characters.
+                break;
+        }
+        index++;
+    }
+
+    if (State.BlockDepth != 1)
+    {
+        Log.LogError(new LogEntry(
+            "unexpected end-of-file",
+            "encountered the end-of-file marker " +
+            "before all blocks were closed.",
+            new SourceLocation(Code, index)));
+        return new ReturnStatement();
+    }
+
+    State.Append(new ReturnStatement());
+
+    return State.PopBlock();
+}
+```
+
+The general idea behind the `Compile` function is that every character in the source document is first handled individually, followed by a basic integrity check. We also append a `return;` statement, because failing to do so might give us an invalid method body.
+
+## Generating IR for specific Brainfuck constructs
+
+As noted before, `Compile` relies on a bunch of helper functions to generate IR. These functions are: `IntegerLiteral`, `Increment`, `Decrement`, `Print`, `Read` and `PopLoop`. Let's go over them one by one.
+
+### Constructing integer literals
+
+We've already created an integer literal before during this tutorial: the `Initialize` function uses one in the following statement.
+
+```cs
+// index = 0;
+state.Append(
+    indexVar.CreateSetStatement(
+        new IntegerExpression(0)));
+```
+
+It's important to keep in mind that `new IntegerExpression(0)` produces a _32-bit signed integer literal,_ because C# (usually) interprets `0` as a 32-bit signed integer. Hence, the `new IntegerExpression(int)` constructor is called. Also, recall that our data consists of an array of bytes, i.e., _8-bit unsigned integers._ So we can't spell, say, `new IntegerExpression(1)` and then use that to represent the `1` in `array[index] = array[index] + 1;` &ndash; that'd amount to adding a 32-bit signed integer to a 8-bit unsigned integer, which breaks Flame IR's typing rules.
+
+> The CLR back-end will probably accept adding a 32-bit signed integer to an 8-bit integer, because the IL code it generates uses only 32-bit integers on the stack. But that's just an implementation detail; other back-ends are allowed to compile ill-defined operations however they want. And if the CLR back-end ever decides to enforce the typing rules, then it too will ill-defined operations.
+
+The easiest way to get a Flame IR literal for a given integer type is to first create a simple 32-bit signed integer literal, and then cast that to whatever integer type you want. The `IntegerLiteral` function does just that.
+
+```cs
+private static IExpression IntegerLiteral(
+    int Value, IType Type)
+{
+    // (Type)Value;
+    return new StaticCastExpression(
+        new IntegerExpression(Value),
+        Type)
+        .Simplify();
+}
+```
+
+There are two things here that I'd like to point out:
+  * We're building a `StaticCastExpression`. Flame IR has many different types of casts. Static casts convert between primitive (built-in) types, such as integer and floating-point types.
+  * After building the `StaticCastExpression`, we also call `Simplify()` on it, which will cause the `StaticCastExpression` to realize that its operand is an integer literal. The value returned by the call to `Simplify()` is an integer literal that has the value and type we want. We didn't have to call `Simplify()`, but it avoids a potential run-time cast.
+
+> Side note: conversions can be represented as one of the following constructs in Flame IR.
+>   * A static cast (`StaticCastExpression`), which we've just used.
+>   * A dynamic cast (`DynamicCastExpression`), which tests if a reference/pointer conforms to a type, and converts it to a reference/pointer to said type.
+>   * A reinterpret cast (`ReinterpretCastExpression`), which is like a `DynamicCastExpression` except that casting a reference/pointer to a type to which it does not conform results in undefined behavior. This allows it to omit the conformity check. This is useful for upcasts, and certain optimizations will replace dynamic casts with reinterpret casts if they can prove that a reference/pointer will always conform to some type.
+>   * An as-instance expression (`AsInstanceExpression`), which is like `DynamicCastExpression`, except that it yields a `null` value instead of throwing an exception when its operand does not conform to the target type.
+>   * An is-instance expression (`IsInstanceExpression`), which tests if a reference/pointer conforms to a type, and then yields that result as a Boolean value.
+>   * A method call, which is used for user-defined expressions.
+
+### Incrementing and decrementing variables
+
+This part is pretty easy, and requires little explanation. `Increment` and `Decrement` load a variable, add or subtract `1`, and store that in the variable.
+
+```cs
+private static IStatement Increment(
+    IVariable Variable)
+{
+    // Variable = Variable + (decltype(Variable))1;
+    return Variable.CreateSetStatement(
+        new AddExpression(
+            Variable.CreateGetExpression(),
+            IntegerLiteral(1, Variable.Type)));
+}
+
+private static IStatement Decrement(
+    IVariable Variable)
+{
+    // Variable = Variable - (decltype(Variable))1;
+    return Variable.CreateSetStatement(
+        new SubtractExpression(
+            Variable.CreateGetExpression(),
+            IntegerLiteral(1, Variable.Type)));
+}
+```
+
+### Writing characters to the output stream
+
+The `Print` function writes `array[index]` to standard output, _as a character._ It's similar to the call to `WriteLine` we generated back when we generated "hello world" programs. The only catch is that `array[index]` is a `byte`, but `void Console.Write(char)` accepts a single `char` argument. So we'll need to insert a conversion. `StaticCastExpression` to the rescue!
+
+```cs
+private static IStatement Print(BrainfuckState State)
+{
+    // Print((Print_Parameter0_Type)array[index]);
+    return new ExpressionStatement(
+        new InvocationExpression(
+            State.PrintMethod,
+            null,
+            new IExpression[]
+            {
+                new StaticCastExpression(
+                    State.ElementVariable.CreateGetExpression(),
+                    State.PrintMethod.Parameters.First().ParameterType)
+            }));
+}
+```  
+
+### Reading characters from the input stream
+
+The `Read` function reads values from standard input, and writes them to `array[index]`. This is arguably the most complicated helper function, because `int Console.Read()` returns a negative value when the input stream is empty. However, Brainfuck expects a value of zero when this type of thing happens. We'll need to insert logic that translates subzero return values to zeros. `Read`'s implementation looks like this:
+
+```cs
+private static IStatement Read(BrainfuckState State)
+{
+    // var tmp = Read();
+    // array[index] = tmp > 0 ? (ElementType)tmp : 0;
+    var tmpVar = new LocalVariable("tmp", State.ReadMethod.ReturnType);
+    return new BlockStatement(new IStatement[]
+    {
+        // tmp = Read();
+        tmpVar.CreateSetStatement(
+            new InvocationExpression(
+                State.ReadMethod, null,
+                new IExpression[] { })),
+        // array[index] = tmp > 0 ? (ElementType)tmp : 0;
+        State.ElementVariable.CreateSetStatement(
+            new SelectExpression(
+                new GreaterThanExpression(
+                    tmpVar.CreateGetExpression(),
+                    IntegerLiteral(0, tmpVar.Type)),
+                new StaticCastExpression(
+                    tmpVar.CreateGetExpression(),
+                    State.ElementVariable.Type),
+                IntegerLiteral(0, State.ElementVariable.Type)))
+    });
+}
+```
+
+This may seem daunting at first, but there's no super complicated logic here. It may help to sort of just stare at it for a while, and read it top-down until you get what's going on. The `new SelectExpression` call corresponds to the ternary operator in the comments.
+
+### Wrapping blocks in `while` loops.
+
+Remember how we're using a `Stack<List<IStatement>>` to handle Brainfuck's brackets ('[' and ']')? Well, `PopLoop` is where we pop values from that stack; it's called whenever we encounter a right bracket (']'). The idea is to first check that the stack contains more than one block &ndash; the bottom-of-stack block is off-limits because it corresponds to the function body, and was not created by a left bracket ('['). If that there is more than one block on the stack, then we'll pop the top-of-stack block, and wrap it in a `while` loop. If there is only one block on the stack, then we'll issue an error and return an empty statement as a placeholder.
+
+```cs
+private static IStatement PopLoop(
+    BrainfuckState State, ISourceDocument Code,
+    int Index, ICompilerLog Log)
+{
+    if (State.BlockDepth <= 1)
+    {
+        // Log an error, return the empty statement.
+        Log.LogError(new LogEntry(
+            "unexpected character",
+            "the given left bracket character (']') " +
+            "doesn't have a matching right bracket ('[') " +
+            "to precede it.",
+            new SourceLocation(Code, Index, 1)));
+
+        return EmptyStatement.Instance;
+    }
+
+    // while (array[index] != 0) { ... }
+    return new WhileStatement(
+        new InequalityExpression(
+            State.ElementVariable.CreateGetExpression(),
+            IntegerLiteral(0, State.ElementVariable.Type)),
+        State.PopBlock());
+}
+```
+
+## Can we compile Brainfuck now?
+
+Actually, we still have to do a tiny bit of bookkeeping. Specifically, we need to:
+  1. load the source code of the input file,
+  2. resolve `System.Console`,
+  3. resolve `void System.Console.Write(char)`,
+  4. resolve `int System.Console.Read()`, and
+  5. call `Brainfuck.Initialize` and `Brainfuck.Compile`.
+
+To accomplish this, we'll rewrite method `GetMainBody` in `BrainfuckHandler` and replace it with the code below.
+
+```cs
+private IStatement GetMainBody(
+    IProject Project, CompilationParameters Parameters,
+    IBinder Binder)
+{
+    // Fetch the source code.
+    var code = ProjectHandlerHelpers.GetSourceSafe(
+        Project.GetSourceItems().Single(), Parameters);
+
+    if (code == null)
+    {
+        // Looks like the source code couldn't be retrieved.
+        return new ReturnStatement();
+    }
+
+    // Resolve type `System.Console`.
+    var consoleClass = Binder.BindType(
+        new SimpleName("Console")
+        .Qualify(
+            new SimpleName("System")
+            .Qualify()));
+
+    if (consoleClass == null)
+    {
+        // We didn't manage to resolve `System.Console`.
+        // Log a message and return a simple `return;` statement.
+
+        Parameters.Log.LogError(new LogEntry(
+            "missing dependency",
+            "could not resolve type 'System.Console'."));
+
+        return new ReturnStatement();
+    }
+
+    // Resolve `static void Write(char)` in `System.Console`
+    var writeMethod = consoleClass.GetMethod(
+        new SimpleName("Write"),
+        true,
+        PrimitiveTypes.Void,
+        new IType[] { PrimitiveTypes.Char });
+
+    if (writeMethod == null)
+    {
+        // We didn't manage to resolve `Write`.
+        // Log a message and return a simple `return;` statement.
+
+        Parameters.Log.LogError(new LogEntry(
+            "missing dependency",
+            "could not resolve method 'static void Write(char)'."));
+
+        return new ReturnStatement();
+    }
+
+    // Resolve `static int Read()` in `System.Console`
+    var readMethod = consoleClass.GetMethod(
+        new SimpleName("Read"),
+        true,
+        PrimitiveTypes.Int32,
+        new IType[] { });
+
+    if (readMethod == null)
+    {
+        // We didn't manage to resolve `Read`.
+        // Log a message and return a simple `return;` statement.
+
+        Parameters.Log.LogError(new LogEntry(
+            "missing dependency",
+            "could not resolve method 'static int Read()'."));
+
+        return new ReturnStatement();
+    }
+
+    return Brainfuck.Compile(
+        code,
+        Brainfuck.Initialize(
+            writeMethod, readMethod,
+            PrimitiveTypes.UInt8, 10000),
+        Parameters.Log);
+}
+```
+
+Most of this is just going through the motions, so I won't elaborate on that here. The first and last statements are interesting, though:
+
+  * The first statement fetches the source code.
+
+    ```cs
+    var code = ProjectHandlerHelpers.GetSourceSafe(
+        Project.GetSourceItems().Single(), Parameters);
+    ```
+
+    `ProjectHandlerHelpers.GetSourceSafe` will retrieve the source code for the source item we gave it &ndash; that is, `Project.GetSourceItems().Single()` &ndash; and return the result as an `ISourceDocument`. If something goes wrong during this process, then an error is logged and `null` is returned instead.
+
+  * The last statement initializes the `BrainfuckState` with a `byte` array that is ten-thousand elements long, compiles the Brainfuck source document to a statement, which is then returned.
+
+  ```cs
+  return Brainfuck.Compile(
+      code,
+      Brainfuck.Initialize(
+          writeMethod, readMethod,
+          PrimitiveTypes.UInt8, 10000),
+      Parameters.Log);
+  ```
+
+Compile your compiler, and run it on an example file. You're welcome to use [`mirror.bf`](https://github.com/jonathanvdc/flame-brainfuck/blob/master/tests/mirror/mirror.bf), which just repeats whatever you throw at it. For example, you can do this:
+
+```
+$ ./flame-brainfuck.exe ./tests/mirror/mirror.bf -platform clr
+$ echo "hi there" | ./tests/mirror/bin/mirror.exe
+hi there
+```
+
+Congratulations! You are now the (proud) author of a working Brainfuck compiler! Good job!
