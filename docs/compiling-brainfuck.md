@@ -541,7 +541,7 @@ Most of this is just going through the motions, so I won't elaborate on that her
 
     `ProjectHandlerHelpers.GetSourceSafe` will retrieve the source code for the source item we give it &ndash; that is, `Project.GetSourceItems().Single()` &ndash; and return the result as an `ISourceDocument`. If something goes wrong during this process, then an error is logged and `null` is returned instead.
 
-  * The last statement initializes the `BrainfuckState` with a `byte` array that is ten-thousand elements long, compiles the Brainfuck source document to a statement, which is then returned.
+  * The last statement initializes the `BrainfuckState` with a `byte` array that is ten-thousand elements long, and compiles the Brainfuck source document to a statement, which is then returned.
 
   ```cs
   return Brainfuck.Compile(
