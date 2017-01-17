@@ -204,8 +204,8 @@ Next up, let's handle the actual Brainfuck code. For this, we'll write a functio
 > ```cs
 Log.LogError(new LogEntry(
     "unexpected character",
-    "the given left bracket character (']') " +
-    "doesn't have a matching right bracket ('[') " +
+    "the given right bracket character (']') " +
+    "doesn't have a matching left bracket ('[') " +
     "to precede it.",
     new SourceLocation(Code, Index, 1)));
 ```
@@ -213,7 +213,7 @@ Log.LogError(new LogEntry(
 > This error message might be rendered like so:
 
 > ```
-mirror.bf:1:3: error: unexpected character: the given left bracket character (']') doesn't have a matching right bracket ('[') to precede it.
+mirror.bf:1:3: error: unexpected character: the given right bracket character (']') doesn't have a matching left bracket ('[') to precede it.
     ,.][,.]
       ^    
 ```
@@ -421,8 +421,8 @@ private static IStatement PopLoop(
         // Log an error, return the empty statement.
         Log.LogError(new LogEntry(
             "unexpected character",
-            "the given left bracket character (']') " +
-            "doesn't have a matching right bracket ('[') " +
+            "the given right bracket character (']') " +
+            "doesn't have a matching left bracket ('[') " +
             "to precede it.",
             new SourceLocation(Code, Index, 1)));
 

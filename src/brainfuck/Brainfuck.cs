@@ -38,9 +38,9 @@ namespace Flame.Brainfuck
                 arrayVar.CreateSetStatement(
                     new NewArrayExpression(
                         ElementType,
-                        new IExpression[] 
-                        { 
-                            new IntegerExpression(ArraySize) 
+                        new IExpression[]
+                        {
+                            new IntegerExpression(ArraySize)
                         })));
 
             return state;
@@ -51,7 +51,7 @@ namespace Flame.Brainfuck
         {
             // (Type)Value;
             return new StaticCastExpression(
-                new IntegerExpression(Value), 
+                new IntegerExpression(Value),
                 Type)
                 .Simplify();
         }
@@ -101,7 +101,7 @@ namespace Flame.Brainfuck
                 // tmp = Read();
                 tmpVar.CreateSetStatement(
                     new InvocationExpression(
-                        State.ReadMethod, null, 
+                        State.ReadMethod, null,
                         new IExpression[] { })),
                 // array[index] = tmp > 0 ? (ElementType)tmp : 0;
                 State.ElementVariable.CreateSetStatement(
@@ -124,12 +124,12 @@ namespace Flame.Brainfuck
             {
                 // Log an error, return the empty statement.
                 Log.LogError(new LogEntry(
-                    "unexpected character", 
-                    "the given left bracket character (']') " +
-                    "doesn't have a matching right bracket ('[') " +
+                    "unexpected character",
+                    "the given right bracket character (']') " +
+                    "doesn't have a matching left bracket ('[') " +
                     "to precede it.",
                     new SourceLocation(Code, Index, 1)));
-                
+
                 return EmptyStatement.Instance;
             }
 
@@ -187,9 +187,9 @@ namespace Flame.Brainfuck
             if (State.BlockDepth != 1)
             {
                 Log.LogError(new LogEntry(
-                    "unexpected end-of-file", 
+                    "unexpected end-of-file",
                     "encountered the end-of-file marker " +
-                    "before all blocks were closed.", 
+                    "before all blocks were closed.",
                     new SourceLocation(Code, index)));
                 return new ReturnStatement();
             }
@@ -200,4 +200,3 @@ namespace Flame.Brainfuck
         }
     }
 }
-
