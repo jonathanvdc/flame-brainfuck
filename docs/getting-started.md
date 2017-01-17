@@ -49,6 +49,8 @@ flame-brainfuck: nothing to compile: no input files
 
 You might even get colorized output, which is already plenty exciting in my book.
 
+> **Note:** `flame-brainfuck.exe` may not be in your current directory; the C# compiler will probably put it in a `bin/Debug/` or `bin/Release/` folder. That's fine. You don't have to navigate to the directory that contains `flame-brainfuck.exe`; just replace `flame-brainfuck.exe` by a path. Alternatively, you can add `flame-brainfuck.exe` to you `PATH` variable.
+
 But wait, there's more. We can also print some version information, which looks like this on my machine.
 
 ```
