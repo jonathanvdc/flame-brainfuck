@@ -88,6 +88,8 @@ I don't think going into the details of textual IR here is helpful &ndash; the f
 
 The first thing you might notice by glancing at the file above is that it's really [LES](http://loyc.net/les/), a syntax for [Loyc trees](http://loyc.net/loyc-trees/). Fun fact: the binary IR format contains the exact same Loyc trees, but they're formatted using the [binary Loyc tree](https://github.com/jonathanvdc/binary-loyc-tree) encoding, which is (usually) more compact.
 
+If you don't know what LES or Loyc are, then that's fine: they're not essential to getting a basic understanding of how Flame works &ndash; though I'd still recommend you head over to [the Loyc website](http://loyc.net/) and take a look. Loyc is a pretty cool project!
+
 ### Type, method and field tables
 
 The second thing you might notice is that over half of the IR consists of _tables._ Flame IR defines references to types, methods and fields in tables. These tables are indexed when an element they contain is required. For example, `#type_table_reference(0)` refers to the first element in the type table, i.e.,
