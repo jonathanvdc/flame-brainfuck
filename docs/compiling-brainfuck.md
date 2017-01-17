@@ -58,7 +58,7 @@ This may not be entirely obvious, but we'll be juggling quite a bit of state in 
   * A handle to the `array` variable. This is encoded as a `IVariable` instance in Flame.
   * A handle to the `index` variable.
 
-> `IVariable`s do not occur directly in Flame IR, which consists exclusively of expressions (`IExpression`) and statements (`IStatement`). Instead, they can be used to build expressions and statements that set the variables they represent using `IExpression CreateGetExpression()` and `IStatement CreateSetStatement(IExpression Value)`.
+> `IVariable`s do not occur directly in Flame IR, which consists exclusively of expressions (`IExpression`) and statements (`IStatement`). Instead, they can be used to build expressions and statements that get and set the variables they represent using `IExpression CreateGetExpression()` and `IStatement CreateSetStatement(IExpression Value)`.
 
 Additionally, we'd also like to store a _derived_ value: a variable that represents `array[index]`. We could build this variable every time that it's requested, but it's probably more efficient to construct it once and then save it.
 
