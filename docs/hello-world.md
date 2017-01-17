@@ -183,6 +183,8 @@ which you can resolve type names, i.e., you give it a type name like
 `System.Console`, and the `IBinder` returns an `IType` that you can query
 for methods, fields, properties, base classes, attributes, etc.
 
+> If you're familiar with the .NET reflection API, then it might help to know that `IType` is more or less equivalent to `System.Type`.
+
 We can get an `IBinder` implementation for the union of all external
 dependencies by waiting for the `CompilationParameters.BinderTask` to complete,
 like so:
