@@ -6,6 +6,8 @@ This tutorial aims to be a gentle introduction to using [Flame](https://github.c
 
 If you don't know what Brainfuck is, then I recommend that you take a look at [its Wikipedia page](https://en.wikipedia.org/wiki/Brainfuck). The important bit is that it's an extremely minimal programming language, so it'll be super easy to implement.
 
-If you have any questions or comments, feel free to start a discussion on [GitBook](https://www.gitbook.com/book/jonathanvdc/flame-brainfuck/) or open an issue &ndash; or maybe even a pull request! &ndash; on [GitHub](https://github.com/jonathanvdc/flame-brainfuck/). I'd welcome your feedback and/or contributions. 
+This tutorial will contain a fair amount of code. You can copy-paste and assemble snippets of code yourself, or you can read the tutorial and get the complete source code from the [`src/` folder in the GitHub repo](https://github.com/jonathanvdc/flame-brainfuck/tree/master/src).
+
+If you have any questions or comments, feel free to start a discussion on [GitBook](https://www.gitbook.com/book/jonathanvdc/flame-brainfuck/) or open an issue &ndash; or maybe even a pull request! &ndash; on [GitHub](https://github.com/jonathanvdc/flame-brainfuck/). I'd welcome your feedback and/or contributions.
 
 Anyway, let's get started.
