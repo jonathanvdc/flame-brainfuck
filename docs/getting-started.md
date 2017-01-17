@@ -43,7 +43,7 @@ namespace Flame.Brainfuck
 You're welcome to replace `"flame-brainfuck"` by the name you picked for your project. If you build your project and produce an executable &ndash; which is, in my case, called `flame-brainfuck.exe` &ndash; then you can run the line prefixed by a dollar sign (`$`) below to get the given output.
 
 ```
-$ ./flame-brainfuck.exe
+$ flame-brainfuck.exe
 flame-brainfuck: nothing to compile: no input files
 ```
 
@@ -52,7 +52,7 @@ You might even get colorized output, which is already plenty exciting in my book
 But wait, there's more. We can also print some version information, which looks like this on my machine.
 
 ```
-$ ./flame-brainfuck.exe --version
+$ flame-brainfuck.exe --version
 flame-brainfuck version 1.0.6214 (based on Flame 0.9.1)
 Platform: Unix 4.4.0.57
 Console: xterm-256color

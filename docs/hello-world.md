@@ -439,7 +439,7 @@ and then run our compiler with input `tests/mirror/mirror.bf -platform clr`
 you'd get the output below.
 
 ```
-$ ./flame-brainfuck.exe tests/mirror/mirror.bf -platform clr
+$ flame-brainfuck.exe tests/mirror/mirror.bf -platform clr
 error: invalid extension: extension 'bf' in 'tests/mirror/mirror.bf' was not recognized as a known project extension.
 Supported extensions:
  * flo
@@ -471,14 +471,14 @@ Let's try "compiling" a Brainfuck program again now. The following command
 should have no output at all.
 
 ```
-$ ./flame-brainfuck.exe tests/mirror/mirror.bf -platform clr
+$ flame-brainfuck.exe tests/mirror/mirror.bf -platform clr
 ```
 
 Instead, it will make a directory named `bin` appear in `tests/mirror`. `bin`
 will contain a CLR executable named `mirror.exe`, which we can run.
 
 ```
-$ ./tests/mirror/bin/mirror.exe
+$ tests/mirror/bin/mirror.exe
 Hello World!
 ```  
 

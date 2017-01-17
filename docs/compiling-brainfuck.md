@@ -555,8 +555,8 @@ Most of this is just going through the motions, so I won't elaborate on that her
 Compile your compiler, and run it on an example file. You're welcome to use [`mirror.bf`](https://github.com/jonathanvdc/flame-brainfuck/blob/master/tests/mirror/mirror.bf), which just repeats whatever you throw at it. For example, you can do this:
 
 ```
-$ ./flame-brainfuck.exe ./tests/mirror/mirror.bf -platform clr
-$ echo "hi there" | ./tests/mirror/bin/mirror.exe
+$ flame-brainfuck.exe tests/mirror/mirror.bf -platform clr
+$ echo "hi there" | tests/mirror/bin/mirror.exe
 hi there
 ```
 

@@ -7,7 +7,7 @@ Now that we have a working Flame-based compiler, we can use its command-line opt
 The following command will compile a program to textual Flame IR.
 
 ```
-$ ./flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S -runtime clr
+$ flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S -runtime clr
 ```
 
 These flags can be interpreted like so:
@@ -18,7 +18,7 @@ These flags can be interpreted like so:
   The practical consequences of this flag are that the CLR's type system will be used, and that the BCL will be imported as standard library. If we hadn't passed in the `-runtime clr` flag, then we wouldn't be able to find `System.Console`. Specifically, we'd get the following output, plus colors.
 
   ```
-  $ ./flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S
+  $ flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S
 
   warning: unknown runtime: no runtime was associated with 'ir'. You can specify one explicitly by passing '-runtime' followed by some known runtime identifier. [-Wunknown-runtime]
 
@@ -132,8 +132,8 @@ We could probably delve even more deeply into the details of Flame IR. Let's not
 Here's a neat trick: you can make your compiler compile the IR down to a CLR assembly. All Flame-based compilers have a Flame IR front-end (`IProjectHandler`) registered by default. So you can just type the following to produce IR for a program, and then turn that IR document into a CLR assembly.
 
 ```
-$ ./flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S -runtime clr
-$ ./flame-brainfuck.exe tests/mirror/bin/mirror.fir -platform clr -o tests/mirror/bin/mirror.exe
+$ flame-brainfuck.exe tests/mirror/mirror.bf -platform ir -S -runtime clr
+$ flame-brainfuck.exe tests/mirror/bin/mirror.fir -platform clr -o tests/mirror/bin/mirror.exe
 ```
 
 Notice the `-o` option. It'll will instruct your compiler to write the resulting assembly to `tests/mirror/bin/mirror.exe` instead of `tests/mirror/bin/bin/mirror.exe`, as `tests/mirror/bin/mirror.fir` is already in a `bin` directory.
